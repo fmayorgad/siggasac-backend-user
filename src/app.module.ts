@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
+import { AuthModule } from 'sigasac-utils';
+
+import { MainModule } from './main/main.module';
+import { RecoverPasswordModule } from './recover-password/recover-password.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [AuthModule, MainModule, RecoverPasswordModule],
+    controllers: [],
+    providers: []
 })
 export class AppModule {}
