@@ -2,27 +2,32 @@ import { Injectable } from '@nestjs/common';
 
 import { DatabaseProvider, User, UserLog } from 'sigasac-db';
 
+import { DatesHelper } from "sigasac-utils";
+
 import { passwordGenerator } from './functions';
 
 @Injectable()
 export class RecoverPasswordService {
-    async recoverPassword(email: string, password?: string) {
+    async recoverPassword(email: string) {
         try {
-            if (password) {
-                this.changePassword(email, password, false);
-            }
+            const pass = passwordGenerator();
 
-            if (!password) {
-                const pass = passwordGenerator();
+            await this.changePassword(0, email, pass, true);
+        } catch (error) {
+            throw error;
+        }
+    }
 
-                this.changePassword(email, pass, true);
-            }
+    async changePasswordUser(id: number, password: string) {
+        try {
+            await this.changePassword(id, '', password, false);
         } catch (error) {
             throw error;
         }
     }
 
     private async changePassword(
+        id: number,
         email: string,
         password: string,
         isRecover: boolean
@@ -30,9 +35,19 @@ export class RecoverPasswordService {
         try {
             const connection = await DatabaseProvider.getConnection();
 
-            const user: User = await connection
-                .getRepository(User)
-                .findOne({ where: { email } });
+            let user: User;
+
+            if (id && !email) {
+                user = await connection
+                    .getRepository(User)
+                    .findOne({ where: { id } });
+            }
+
+            if (!id && email) {
+                user = await connection
+                    .getRepository(User)
+                    .findOne({ where: { email } });
+            }
 
             if (user) {
                 user.password = password;
@@ -48,11 +63,7 @@ export class RecoverPasswordService {
                 if (isRecover) {
                     userLog.updatedPassword = 1;
                     userLog.passwordUpdateDate = passwordUpdateDate;
-                    userLog.updatedPasswordExpirationDate = new Date(
-                        passwordUpdateDate.setDate(
-                            passwordUpdateDate.getDate() + 1
-                        )
-                    );
+                    userLog.updatedPasswordExpirationDate = new Date(DatesHelper.addDayToDate(passwordUpdateDate));
 
                     await connection.getRepository(UserLog).save(userLog);
                 }

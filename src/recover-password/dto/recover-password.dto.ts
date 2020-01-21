@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsEmail } from 'class-validator';
+import { IsEmail } from 'class-validator';
 
 export class RecoverPasswordDTO {
     @IsEmail()
-    @IsNotEmpty()
     @ApiProperty({
+        required: false,
         description:
-            'Email al cual se enviará el correo de recuperación (asociado a una cuenta)'
+            'Email al cual se enviará la contraseña temporal (sólo para recuperación)'
     })
     email: string;
 
