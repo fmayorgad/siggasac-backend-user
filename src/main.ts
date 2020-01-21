@@ -4,7 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { DatabaseProvider } from 'sigasac-db';
 
-import { HttpExceptionFilter, MAIN } from 'sigasac-utils';
+import { HttpExceptionFilter, USERS } from 'sigasac-utils';
 
 import { AppModule } from './app.module';
 
@@ -18,17 +18,17 @@ async function bootstrap() {
     app.enableCors();
 
     const options = new DocumentBuilder()
-        .setTitle('Siga SAC API, módulo usuarios')
-        .setDescription(`${'módulo usuarios'}`)
-        .setVersion('1.0')
+        .setTitle(`${USERS.name}`.toLocaleUpperCase())
+        .setDescription(`${USERS.description}`)
+        .setVersion(`${USERS.version}`)
         .addBearerAuth()
         .build();
 
     const document = SwaggerModule.createDocument(app, options);
 
-    SwaggerModule.setup(`${'users'}/apiDoc`, app, document);
+    SwaggerModule.setup(`${USERS.name}/apiDoc`, app, document);
 
-    await app.listen(3001, async () => {
+    await app.listen(USERS.port, async () => {
         const connection = await DatabaseProvider.getConnection();
 
         const result = await connection.query('SELECT 1 + 1');
