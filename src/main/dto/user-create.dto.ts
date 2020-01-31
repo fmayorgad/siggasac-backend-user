@@ -15,6 +15,9 @@ export class UserCreateDto {
     @ApiProperty({ required: true, description: 'Perfil del usuario' })
     profileId: number;
 
+    @ApiProperty({ required: false })
+    schoolId?: number;
+
     @ApiProperty({ required: false, description: 'Apellido del usuario' })
     surname?: string;
 }

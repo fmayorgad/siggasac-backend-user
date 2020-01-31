@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DatabaseProvider, User } from 'sigasac-db';
+import { DatabaseProvider, User, SchoolProfileUser } from 'sigasac-db';
 
 import { UserUpdateDto, UserCreateDto } from './dto';
 
@@ -9,7 +9,19 @@ export class MainService {
         try {
             const connection = await DatabaseProvider.getConnection();
 
-            return await connection.getRepository(User).save(userCreateDto);
+            const user = await connection
+                .getRepository(User)
+                .save(userCreateDto);
+
+            if (userCreateDto.schoolId) {
+                await connection.getRepository(SchoolProfileUser).save({
+                    schoolId: userCreateDto.schoolId,
+                    profileId: userCreateDto.profileId,
+                    userId: user.id
+                });
+            }
+
+            return user;
         } catch (error) {
             throw error;
         }
