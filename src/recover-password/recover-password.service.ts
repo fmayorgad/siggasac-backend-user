@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { DatabaseProvider, User, UserLog } from 'sigasac-db';
 
-import { DatesHelper } from "sigasac-utils";
+import { DatesHelper } from 'sigasac-utils';
 
 import { passwordGenerator } from './functions';
 
@@ -63,7 +63,9 @@ export class RecoverPasswordService {
                 if (isRecover) {
                     userLog.updatedPassword = 1;
                     userLog.passwordUpdateDate = passwordUpdateDate;
-                    userLog.updatedPasswordExpirationDate = new Date(DatesHelper.addDayToDate(passwordUpdateDate));
+                    userLog.updatedPasswordExpirationDate = new Date(
+                        DatesHelper.addDayToDate(passwordUpdateDate)
+                    );
 
                     await connection.getRepository(UserLog).save(userLog);
                 }

@@ -32,13 +32,39 @@ const {
 } = ROLES;
 
 import { MainService } from './main.service';
-import { UserUpdateDto } from './dto';
+import { UserUpdateDto, UserCreateDto } from './dto';
 
 @Controller(`${USERS.apiBasePath}/${USERS.subRoutes.main}`)
 @ApiTags(`${USERS.subRoutes.main}`)
 @ApiBearerAuth()
 export class MainController {
     constructor(private readonly mainService: MainService) {}
+
+    @Post()
+    @ApiConsumes('application/x-www-form-urlencoded')
+    @ApiOperation({})
+    @UseGuards(AuthGuard('jwt'))
+    @Roles(SUPER_ADMIN, SUPER_ADMIN_SCHOOL)
+    async create(@Res() res: Response, @Body() userCreateDto: UserCreateDto) {
+        try {
+            const user = await this.mainService.create(userCreateDto);
+
+            res.status(HttpStatus.CREATED).send({
+                user
+            });
+        } catch (error) {
+            if (error.message.statusCode) {
+                return res.status(error.message.statusCode).send({
+                    message: error.message
+                });
+            }
+
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+                message: error.message,
+                stack: error.stack
+            });
+        }
+    }
 
     @Put()
     @ApiConsumes('application/x-www-form-urlencoded')
